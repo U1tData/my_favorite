@@ -3,6 +3,8 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+        maven(url = "https://s01.oss.sonatype.org/content/repositories/releases")
+        maven(url = "https://maven.rikka.dev")
     }
 }
 
@@ -11,6 +13,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven(url = "https://s01.oss.sonatype.org/content/repositories/releases")
+        maven(url = "https://maven.rikka.dev")
     }
 }
 
