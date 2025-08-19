@@ -75,33 +75,33 @@ class DnsTunForwarder(
 
                 // IPv4 header
                 out[0] = 0x45.toByte() // version(4) + ihl(5)
-                out[1] = 0x00
+                out[1] = 0x00.toByte()
                 out[2] = ((totalLen ushr 8) and 0xFF).toByte()
                 out[3] = (totalLen and 0xFF).toByte()
-                out[4] = 0x00; out[5] = 0x00 // id
-                out[6] = 0x00; out[7] = 0x00 // flags/fragment
+                out[4] = 0x00.toByte(); out[5] = 0x00.toByte() // id
+                out[6] = 0x00.toByte(); out[7] = 0x00.toByte() // flags/fragment
                 out[8] = 64.toByte()         // TTL
                 out[9] = 17.toByte()         // protocol UDP
                 // src 10.0.0.1 (DNS endpoint inside VPN)
-                out[12] = 10; out[13] = 0; out[14] = 0; out[15] = 1
+                out[12] = 10.toByte(); out[13] = 0.toByte(); out[14] = 0.toByte(); out[15] = 1.toByte()
                 // dst = original src
                 out[16] = srcIp[0]; out[17] = srcIp[1]; out[18] = srcIp[2]; out[19] = srcIp[3]
                 // checksum later
 
                 // UDP header
                 val udpLenResp = 8 + respLen
-                out[20] = 0x00; out[21] = 0x35 // src port 53
+                out[20] = 0x00.toByte(); out[21] = 0x35.toByte() // src port 53
                 out[22] = ((srcPort ushr 8) and 0xFF).toByte()
                 out[23] = (srcPort and 0xFF).toByte()
                 out[24] = ((udpLenResp ushr 8) and 0xFF).toByte()
                 out[25] = (udpLenResp and 0xFF).toByte()
-                out[26] = 0x00; out[27] = 0x00 // UDP checksum optional for IPv4 (0 = not used)
+                out[26] = 0x00.toByte(); out[27] = 0x00.toByte() // UDP checksum optional for IPv4 (0 = not used)
 
                 // payload
                 System.arraycopy(respPkt.data, 0, out, 28, respLen)
 
                 // compute IP header checksum
-                out[10] = 0; out[11] = 0
+                out[10] = 0.toByte(); out[11] = 0.toByte()
                 val csum = ipv4HeaderChecksum(out)
                 out[10] = ((csum ushr 8) and 0xFF).toByte()
                 out[11] = (csum and 0xFF).toByte()
