@@ -34,8 +34,10 @@ class SmartDnsVpnService : VpnService() {
         // Build VPN interface: use 10.0.0.1 as the internal DNS endpoint on TUN
         val builder = Builder()
             .setSession("ShizukuSmartDNS")
-            .addAddress("10.0.0.1", 32)
+            // Assign 10.0.0.2 to TUN and use 10.0.0.1 as DNS endpoint inside VPN
+            .addAddress("10.0.0.2", 32)
             .addDnsServer("10.0.0.1")
+            .addRoute("10.0.0.1", 32)
         vpnInterface = builder.establish()
 
         // Start SmartDNS process via Shizuku if possible (placeholder), and start TUN DNS forwarder

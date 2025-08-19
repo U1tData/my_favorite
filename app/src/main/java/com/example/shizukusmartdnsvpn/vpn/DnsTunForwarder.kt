@@ -82,7 +82,7 @@ class DnsTunForwarder(
                 out[6] = 0x00; out[7] = 0x00 // flags/fragment
                 out[8] = 64.toByte()         // TTL
                 out[9] = 17.toByte()         // protocol UDP
-                // src 10.0.0.1
+                // src 10.0.0.1 (DNS endpoint inside VPN)
                 out[12] = 10; out[13] = 0; out[14] = 0; out[15] = 1
                 // dst = original src
                 out[16] = srcIp[0]; out[17] = srcIp[1]; out[18] = srcIp[2]; out[19] = srcIp[3]
