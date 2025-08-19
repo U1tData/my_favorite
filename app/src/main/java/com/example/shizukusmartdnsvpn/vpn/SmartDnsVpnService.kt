@@ -36,7 +36,6 @@ class SmartDnsVpnService : VpnService() {
             .setSession("ShizukuSmartDNS")
             .addAddress("10.0.0.1", 32)
             .addDnsServer("10.0.0.1")
-            .addRoute("0.0.0.0", 0)
         vpnInterface = builder.establish()
 
         // Start SmartDNS process via Shizuku if possible (placeholder), and start TUN DNS forwarder

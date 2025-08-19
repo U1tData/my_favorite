@@ -12,7 +12,8 @@ import java.net.InetSocketAddress
 class DnsTunForwarder(
     private val service: VpnService,
     private val fd: FileDescriptor,
-    private val upstreams: List<InetAddress>
+    private val upstreams: List<InetAddress>,
+    private val destPort: Int = 53
 ) : Runnable {
 
     @Volatile
@@ -53,11 +54,7 @@ class DnsTunForwarder(
             val upstream = upstreams[upIdx % upstreams.size]
             upIdx++
             val upstreamSocket = DatagramSocket()
-            try {
-                service.protect(upstreamSocket)
-            } catch (_: Throwable) {
-                // best effort
-            }
+            try { service.protect(upstreamSocket) } catch (_: Throwable) {}
             upstreamSocket.soTimeout = 3000
             try {
                 upstreamSocket.send(
@@ -65,7 +62,7 @@ class DnsTunForwarder(
                         packet,
                         dnsOffset,
                         dnsLen,
-                        InetSocketAddress(upstream, 53)
+                        InetSocketAddress(upstream, destPort)
                     )
                 )
                 val respBuf = ByteArray(1500)
