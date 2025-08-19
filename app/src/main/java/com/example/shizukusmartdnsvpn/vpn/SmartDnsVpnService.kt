@@ -13,34 +13,42 @@ import com.example.shizukusmartdnsvpn.R
 import com.example.shizukusmartdnsvpn.ui.MainActivity
 import rikka.shizuku.Shizuku
 import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.net.InetSocketAddress
-import java.nio.ByteBuffer
+import java.net.InetAddress
 import java.util.concurrent.Executors
 
 class SmartDnsVpnService : VpnService() {
 
     private var vpnInterface: ParcelFileDescriptor? = null
     private val executor = Executors.newSingleThreadExecutor()
+    @Volatile private var forwarderThread: Thread? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(1, buildNotification())
 
-        val upstreams = intent?.getStringExtra("upstreams")?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }
+        val upstreamStrings = intent?.getStringExtra("upstreams")?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }
             ?: listOf("1.1.1.1", "8.8.8.8")
+        val upstreams = upstreamStrings.mapNotNull {
+            try { InetAddress.getByName(it) } catch (_: Exception) { null }
+        }.ifEmpty { listOf(InetAddress.getByName("1.1.1.1"), InetAddress.getByName("8.8.8.8")) }
 
-        // Build VPN interface
+        // Build VPN interface: use 10.0.0.1 as the internal DNS endpoint on TUN
         val builder = Builder()
             .setSession("ShizukuSmartDNS")
-            .addAddress("10.0.0.2", 32)
+            .addAddress("10.0.0.1", 32)
             .addDnsServer("10.0.0.1")
             .addRoute("0.0.0.0", 0)
         vpnInterface = builder.establish()
 
-        // Start SmartDNS process via Shizuku if possible, fallback to app process
-        executor.execute {
-            startSmartDns(upstreams)
+        // Start SmartDNS process via Shizuku if possible (placeholder), and start TUN DNS forwarder
+        executor.execute { startSmartDns(upstreamStrings) }
+
+        val fd = vpnInterface?.fileDescriptor
+        if (fd != null) {
+            val forwarder = DnsTunForwarder(this, fd, upstreams)
+            val th = Thread(forwarder, "DnsTunForwarder")
+            forwarderThread?.interrupt()
+            forwarderThread = th
+            th.start()
         }
 
         return START_STICKY
@@ -48,6 +56,7 @@ class SmartDnsVpnService : VpnService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        try { forwarderThread?.interrupt() } catch (_: Throwable) {}
         vpnInterface?.close()
         executor.shutdownNow()
     }
@@ -79,11 +88,10 @@ class SmartDnsVpnService : VpnService() {
         val confFile = File(filesDir, "smartdns.conf")
         confFile.writeText(conf)
 
-        // Normally you'd bundle SmartDNS binary for relevant ABIs and exec with Shizuku to gain CAP_NET_ADMIN to bind to low ports or set protect.
-        // Here we simulate a long-running local process. In production, replace with real binary execution.
+        // Normally you'd bundle SmartDNS binary for relevant ABIs and exec with Shizuku to gain extra privileges if needed.
         if (Shizuku.pingBinder()) {
-            // Example: Shizuku exec placeholder
-            // Shizuku.newProcess(arrayOf("/data/local/tmp/smartdns", "-c", confFile.absolutePath), null, null)
+            // Example (you need to supply your own binary path):
+            // Shizuku.newProcess(arrayOf("/data/local/tmp/smartdns", "-c", confFile.absolutePath), null, "/")
         }
     }
 }
