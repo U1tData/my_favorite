@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Shizuku SmartDNS VPN</string>
+    <string name="notif_channel_name">ShizukuSmartDNS</string>
+    <string name="notif_channel_desc">Foreground service for SmartDNS VPN</string>
+    <string name="start_vpn">Start VPN</string>
+    <string name="stop_vpn">Stop VPN</string>
+    <string name="status_running">VPN Running</string>
+    <string name="status_stopped">VPN Stopped</string>
+    <string name="request_perm">Request Shizuku</string>
+    <string name="status_shizuku_granted">Shizuku granted</string>
+    <string name="status_shizuku_denied">Shizuku not granted</string>
+    <string name="set_smartdns_path">Set SmartDNS binary path</string>
+    <string name="dns_upstreams">DNS upstreams (comma separated)</string>
+</resources>

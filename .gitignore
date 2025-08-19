@@ -1,0 +1,13 @@
+# Android
+.gradle/
+/local.properties
+/.idea/
+/captures/
+*/build/
+.externalNativeBuild/
+.cxx/
+**/*.iml
+
+# macOS/Linux
+.DS_Store
+*.swp
