@@ -8,6 +8,8 @@
     <string name="status_stopped">VPN Stopped</string>
     <string name="request_perm">Request Shizuku</string>
     <string name="status_shizuku_granted">Shizuku granted</string>
+    <string name="use_smartdns_local">Use local SmartDNS via Shizuku</string>
+
     <string name="status_shizuku_denied">Shizuku not granted</string>
     <string name="set_smartdns_path">Set SmartDNS binary path</string>
     <string name="dns_upstreams">DNS upstreams (comma separated)</string>
